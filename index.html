@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تعهد متقدم لاختبار كامل القرآن – جمعية خيركم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#1d2a24; --muted:#5d6b64; --line:#d6ddd8; --bg:#f3f6f4; --card:#ffffff;
+  --green:#2e6b4f; --green-d:#1f4d38; --orange:#d98324; --err:#b3261e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:0 14px 120px}
+.top{background:var(--green-d);color:#fff;padding:22px 14px 26px;border-bottom:5px solid var(--orange)}
+.top .in{max-width:720px;margin:0 auto}
+.top h1{margin:0;font-size:22px;font-weight:700}
+.top p{margin:4px 0 0;font-size:14px;opacity:.85}
+fieldset{border:1px solid var(--line);background:var(--card);border-radius:10px;margin:16px 0 0;padding:14px 14px 6px}
+legend{font-weight:700;color:var(--green-d);padding:0 8px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.grid .full{grid-column:1/-1}
+label{display:block;font-size:14px;font-weight:600;margin:0 0 12px}
+label span.h{display:block;margin-bottom:3px}
+input[type=text],input[type=tel],input[type=date],select{
+  width:100%;font:inherit;font-size:16px;padding:10px 11px;border:1px solid #b9c4be;border-radius:7px;background:#fff;color:var(--ink)}
+input:focus,select:focus,button:focus-visible{outline:3px solid #9cc9b4;outline-offset:1px;border-color:var(--green)}
+input[readonly]{background:#eef2ef;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.opts label{margin:0;font-weight:400}
+.opts input{position:absolute;opacity:0}
+.opts label span{display:inline-block;padding:8px 14px;border:1px solid #b9c4be;border-radius:999px;font-size:15px;background:#fff;cursor:pointer}
+.opts input:checked+span{background:var(--green);border-color:var(--green);color:#fff}
+.opts input:focus-visible+span{outline:3px solid #9cc9b4}
+.pledge label{display:block;margin:0 0 10px}
+.pledge label span{display:block;border-radius:10px;padding:11px 14px;line-height:1.7}
+.hint{font-size:13px;color:var(--muted);margin:-6px 0 12px}
+/* uploads */
+.pick{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.thumb{width:96px;height:92px;border:2px dashed #b9c4be;border-radius:8px;background:#f7f9f8;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;overflow:hidden;flex:none}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.idthumbs{display:flex;gap:8px;flex-wrap:wrap}
+.idthumbs .thumb{width:110px;height:76px}
+.btn{font:inherit;font-weight:600;font-size:15px;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;background:var(--green);color:#fff}
+.btn.sec{background:#fff;color:var(--green-d);border:1px solid var(--green)}
+.btn.sm{padding:6px 12px;font-size:13px}
+input[type=file]{display:none}
+.sigbox{border:1px solid #b9c4be;border-radius:8px;background:#fff;position:relative;touch-action:none}
+.sigbox canvas{display:block;width:100%;height:170px;border-radius:8px;cursor:crosshair}
+.sigbox .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#a5b0aa;pointer-events:none;font-size:15px}
+.sigtools{display:flex;justify-content:space-between;align-items:center;margin:6px 0 12px;font-size:13px;color:var(--muted)}
+.err{color:var(--err);font-size:14px;font-weight:600;margin:10px 0 0;min-height:1.2em}
+.bar{position:fixed;inset:auto 0 0 0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.bar .in{max-width:720px;margin:0 auto;display:flex;gap:10px}
+.bar .btn{flex:1;padding:13px}
+.bar .btn.main{flex:2;background:var(--orange);font-size:17px}
+.bar .btn[disabled]{opacity:.6}
+.result{display:none;margin-top:16px;background:#fff;border:1px solid var(--green);border-radius:10px;padding:14px}
+.result h2{margin:0 0 10px;font-size:17px;color:var(--green-d)}
+.result .acts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.result img{width:100%;border:1px solid var(--line)}
+/* ===== A4 sheet (rendered off-screen, then captured) ===== */
+#stage{position:fixed;left:-10000px;top:0;width:794px;height:1123px;pointer-events:none}
+.sheet{width:794px;height:1123px;background:#fff;position:relative;direction:rtl;font-family:'Amiri','Noto Naskh Arabic',serif;color:#111;font-size:17px;line-height:1.3;overflow:hidden}
+.sh-head{position:absolute;top:22px;right:34px;left:34px;height:112px;display:flex;justify-content:space-between;align-items:flex-start}
+.sh-assoc{text-align:center;width:330px;font-size:15px;line-height:1.55;color:#333;margin-top:2px}
+.sh-assoc b{display:block;font-size:20px;color:#222;letter-spacing:.2px}
+.sh-logo{width:300px;height:90px;display:flex;align-items:center;justify-content:flex-start;direction:ltr}
+.sh-logo img{max-width:100%;max-height:100%;display:block}
+.sh-logo .fb{direction:rtl;text-align:right;display:none;line-height:1.1}
+.sh-logo.nologo .fb{display:block}
+.sh-logo .fb b{font-size:46px;color:#7a5a2a;display:block}
+.sh-logo .fb i{font-style:normal;font-size:17px;color:#444}
+.frame{position:absolute;top:164px;right:64px;left:64px;border:2px solid #333}
+.fr-top{display:flex;direction:rtl;border-bottom:1.5px solid #333;height:168px}
+.fr-top .rt{flex:1;display:flex;flex-direction:column}
+.fr-top .rt>div{border-bottom:1.5px solid #333;display:flex;align-items:center;justify-content:center;flex:1}
+.fr-top .rt>div:last-child{border-bottom:0}
+.fr-top .ttl{font-size:25px;font-weight:700}
+.fr-top .acc{justify-content:flex-start!important;padding:0 14px}
+.fr-top .nm{font-size:26px;font-weight:700}
+.fr-top .ph{width:170px;border-right:1.5px solid #333;flex:none;background:#fafafa}
+.fr-top .ph img{width:100%;height:100%;display:block}
+.row{display:flex;direction:rtl;border-bottom:1.5px solid #333;align-items:stretch}
+.row:last-child{border-bottom:0}
+.cell{flex:1;display:flex;align-items:center;padding:0 12px;border-left:1.5px solid #333;min-width:0;gap:6px}
+.cell:last-child{border-left:0}
+.l{font-weight:700;white-space:nowrap}
+.v{color:#1b3fa0;font-size:20px;flex:1;border-bottom:1px dotted #999;min-height:24px;text-align:center;white-space:nowrap;overflow:hidden;line-height:1.35;padding:0 4px}
+.v.nl{border-bottom:0}
+.r60{height:62px}.r52{height:54px}.r46{height:48px}
+.names .cell{flex-direction:row;padding:0 8px;gap:4px}
+.names .l{font-size:16px}
+.names .v{font-size:19px}
+.dbl{flex-direction:column;align-items:stretch;border-bottom:1.5px solid #333}
+.dbl .row{border-bottom:0;flex:1}
+.dbl .row .cell{border-left:0}
+.chk{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.cb{display:inline-block;min-width:34px;text-align:center;font-family:Arial,sans-serif;font-weight:700;color:#1b3fa0;font-size:17px}
+.sh-pledge{padding:14px 18px 6px}
+.sh-pledge .pt{text-align:center;font-weight:700;font-size:22px;text-decoration:underline;margin-bottom:12px}
+.sh-pledge .pn{font-size:20px;margin-bottom:10px}
+.sh-pledge .pn span{color:#1b3fa0;font-size:23px;margin-right:8px}
+.sh-pledge .po{font-size:17px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sh-sign{display:flex;direction:rtl;padding:6px 18px 12px;height:150px;align-items:flex-start;justify-content:space-between}
+.sh-sign .sg{width:420px;display:flex;flex-direction:column}
+.sh-sign .sg .l{font-size:19px}
+.sig-area{height:96px;margin-top:2px;position:relative}
+.sig-area img{position:absolute;right:0;top:0;max-width:300px;max-height:96px}
+.sh-sign .sd{width:280px;padding-top:34px;display:flex;gap:10px;align-items:center}
+.sh-sign .sd .v{font-size:25px;border:0;font-family:Arial,sans-serif;text-align:right}
+.sh-foot{position:absolute;bottom:20px;right:34px;left:34px;border-top:3px solid #7aa54a;padding-top:6px;font-size:12.5px;color:#222;text-align:center;font-family:'Cairo',sans-serif}
+.sh-foot div+div{margin-top:3px;direction:ltr;letter-spacing:.8px;font-size:12px}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <h1>تعهد متقدم لاختبار كامل القرآن</h1>
+  <p>جمعية خيركم لتعليم القرآن الكريم وتحفيظه – املأ البيانات ووقّع، وسيُنشأ ملف PDF جاهز.</p>
+</div></header>
+
+<main class="wrap">
+<form id="f" autocomplete="off" novalidate>
+
+<fieldset>
+  <legend>صورة الطالب</legend>
+  <div class="pick">
+    <div class="thumb" id="photoThumb">لا توجد صورة</div>
+    <div>
+      <label class="btn" for="photoIn" style="display:inline-block;margin:0">اختيار صورة شخصية</label>
+      <input type="file" id="photoIn" accept="image/*">
+      <p class="hint" style="margin:8px 0 0">أي مقاس يصلح، تُقصّ تلقائيًا لتناسب مكان الصورة.</p>
+    </div>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>اسم الطالب</legend>
+  <div class="grid">
+    <label><span class="h">الاسم الأول</span><input type="text" name="n1" id="n1"></label>
+    <label><span class="h">اسم الأب</span><input type="text" name="n2" id="n2"></label>
+    <label><span class="h">اسم الجد</span><input type="text" name="n3" id="n3"></label>
+    <label><span class="h">اللقب</span><input type="text" name="n4" id="n4"></label>
+    <label class="full"><span class="h">رقم الحساب الآلي في برنامج الجمعية (إن وُجد)</span><input type="text" name="acc" inputmode="numeric"></label>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>بيانات شخصية</legend>
+  <div class="grid">
+    <label><span class="h">الجنسية</span><input type="text" name="nat"></label>
+    <label><span class="h">مكان الميلاد</span><input type="text" name="pob"></label>
+    <label><span class="h">تاريخ الميلاد (ميلادي)</span><input type="date" name="dobG" id="dobG"></label>
+    <label><span class="h">العمر</span><input type="text" id="age" readonly placeholder="يُحسب تلقائيًا"></label>
+    <label class="full"><span class="h">تاريخ الميلاد (هجري) – اختياري</span><input type="text" name="dobH" placeholder="مثال: 1408/07/18"></label>
+  </div>
+  <span class="h" style="font-weight:600;font-size:14px">المرحلة الدراسية</span>
+  <div class="opts" id="stageOpts">
+    <label><input type="radio" name="stage" value="ابتدائي"><span>ابتدائي</span></label>
+    <label><input type="radio" name="stage" value="متوسط"><span>متوسط</span></label>
+    <label><input type="radio" name="stage" value="ثانوي"><span>ثانوي</span></label>
+    <label><input type="radio" name="stage" value="جامعي"><span>جامعي</span></label>
+    <label><input type="radio" name="stage" value="أخرى"><span>أخرى</span></label>
+  </div>
+  <label id="stageOtherW" style="display:none"><span class="h">حدد المرحلة</span><input type="text" name="stageOther"></label>
+</fieldset>
+
+<fieldset>
+  <legend>الهوية</legend>
+  <span class="h" style="font-weight:600;font-size:14px">نوع الهوية</span>
+  <div class="opts" id="idTypeOpts">
+    <label><input type="radio" name="idType" value="الهوية الوطنية"><span>الهوية الوطنية</span></label>
+    <label><input type="radio" name="idType" value="إقامة"><span>إقامة</span></label>
+    <label><input type="radio" name="idType" value="جواز سفر"><span>جواز سفر</span></label>
+    <label><input type="radio" name="idType" value="رقم الحدود"><span>رقم الحدود</span></label>
+    <label><input type="radio" name="idType" value="أخرى"><span>أخرى</span></label>
+  </div>
+  <label id="idOtherW" style="display:none"><span class="h">حدد نوع الهوية</span><input type="text" name="idOther"></label>
+  <div class="grid">
+    <label><span class="h">رقم الهوية</span><input type="text" name="idNo" inputmode="numeric"></label>
+    <label><span class="h">تاريخها</span><input type="text" name="idDate" placeholder="يوم/شهر/سنة"></label>
+  </div>
+  <span class="h" style="font-weight:600;font-size:14px">صورة الهوية (وجه واحد أو وجهان)</span>
+  <div class="pick">
+    <div class="idthumbs" id="idThumbs"><div class="thumb">لا توجد صورة</div></div>
+  </div>
+  <label class="btn" for="idIn" style="display:inline-block;margin:0 0 12px">رفع صورة الهوية</label>
+  <input type="file" id="idIn" accept="image/*" multiple>
+  <button type="button" class="btn sec sm" id="idClear" style="display:none">حذف الصور</button>
+</fieldset>
+
+<fieldset>
+  <legend>التواصل</legend>
+  <div class="grid">
+    <label><span class="h">رقم الجوال</span><input type="tel" name="mob" inputmode="tel"></label>
+    <label><span class="h">رقم جوال ولي الأمر</span><input type="tel" name="guard" inputmode="tel"></label>
+    <label class="full"><span class="h">هاتف آخر</span><input type="tel" name="tel2" inputmode="tel"></label>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>الحلقة</legend>
+  <div class="grid">
+    <label><span class="h">المسجد</span><input type="text" name="mosque"></label>
+    <label><span class="h">الحلقة</span><input type="text" name="halaqa"></label>
+    <label><span class="h">اسم المعلم</span><input type="text" name="teacher"></label>
+    <label><span class="h">مكتب الإشراف</span><input type="text" name="office"></label>
+  </div>
+</fieldset>
+
+<fieldset class="pledge">
+  <legend>التعهد</legend>
+  <p class="hint">اختر العبارة التي تنطبق عليك.</p>
+  <div class="opts" style="display:block">
+    <label><input type="radio" name="pledge" value="no" checked><span>لم يسبق لي دخول اختبار كامل القرآن في أو خارج جمعية خيركم لتعليم القرآن الكريم وتحفيظه.</span></label>
+    <label><input type="radio" name="pledge" value="yes"><span>سبق لي دخول اختبار كامل القرآن في أو خارج جمعية خيركم لتعليم القرآن الكريم وتحفيظه.</span></label>
+  </div>
+</fieldset>
+
+<fieldset>
+  <legend>التوقيع والتاريخ</legend>
+  <div class="sigbox" id="sigBox">
+    <canvas id="sig"></canvas>
+    <div class="ph" id="sigPh">وقّع هنا بإصبعك أو بالماوس</div>
+  </div>
+  <div class="sigtools"><span>التوقيع يظهر في خانة توقيع الطالب.</span><button type="button" class="btn sec sm" id="sigClear">مسح التوقيع</button></div>
+  <label><span class="h">التاريخ</span><input type="text" name="date" id="date" inputmode="numeric"></label>
+</fieldset>
+
+<p class="err" id="err" role="alert"></p>
+
+<section class="result" id="result">
+  <h2>تم إنشاء الملف</h2>
+  <div class="acts">
+    <button type="button" class="btn" id="dl">تحميل PDF</button>
+    <button type="button" class="btn sec" id="share" style="display:none">مشاركة الملف</button>
+  </div>
+  <img id="prev" alt="معاينة الصفحة الأولى">
+</section>
+</form>
+</main>
+
+<div class="bar"><div class="in">
+  <button type="button" class="btn main" id="save">حفظ وإنشاء PDF</button>
+</div></div>
+
+<!-- Off-screen A4 sheet: replica of the paper form -->
+<div id="stage"><div class="sheet" id="sheet">
+  <div class="sh-head">
+    <div class="sh-assoc"><b>جمعية خيركم لتعليم القرآن الكريم وتحفيظه</b>محافظة جدة بمنطقة مكة المكرمة<br>بإشراف المركز الوطني لتنمية القطاع غير الربحي<br>رقم الترخيص ( ٣٤٠٩ )</div>
+    <div class="sh-logo nologo" id="shLogo">
+      <img src="logo.png" alt="" id="logoImg">
+      <div class="fb"><b>خيركم</b><i>لتعليم القرآن الكريم وتحفيظه</i></div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="fr-top">
+      <div class="rt">
+        <div class="ttl">تعهد متقدم لاختبار كامل القرآن</div>
+        <div class="acc"><span class="l">رقم الحساب الآلي في برنامج الجمعية ( </span><span class="v nl" style="flex:none;min-width:110px" data-k="acc"></span><span class="l"> )</span></div>
+        <div class="nm">اسم الطالب</div>
+      </div>
+      <div class="ph"><img id="shPhoto" alt=""></div>
+    </div>
+
+    <div class="row names r60">
+      <div class="cell"><span class="l">( الأول )</span><span class="v" data-k="n1"></span></div>
+      <div class="cell"><span class="l">( الأب )</span><span class="v" data-k="n2"></span></div>
+      <div class="cell"><span class="l">( الجد )</span><span class="v" data-k="n3"></span></div>
+      <div class="cell"><span class="l">( اللقب )</span><span class="v" data-k="n4"></span></div>
+    </div>
+
+    <div class="dbl" style="height:96px">
+      <div class="row">
+        <div class="cell"><span class="l">الجنسية :</span><span class="v" data-k="nat"></span></div>
+        <div class="cell" style="flex:1.1"><span class="l">تاريخ الميلاد (هجري) :</span><span class="v" data-k="dobH"></span><span class="l">هـ</span></div>
+        <div class="cell" style="flex:1.1"><span class="l">تاريخ الميلاد (ميلادي) :</span><span class="v" data-k="dobG"></span><span class="l">م</span></div>
+      </div>
+      <div class="row">
+        <div class="cell" style="flex:1.4"><span class="l">مكان الميلاد :</span><span class="v" data-k="pob"></span></div>
+        <div class="cell"><span class="l">العمر :</span><span class="v" data-k="age"></span></div>
+      </div>
+    </div>
+
+    <div class="row r52" style="border-top:1.5px solid #333">
+      <div class="cell" style="gap:10px">
+        <span class="l">المرحلة الدراسية :</span>
+        <span class="chk"><span class="cb" data-c="stage:ابتدائي"></span>ابتدائي</span>
+        <span class="chk"><span class="cb" data-c="stage:متوسط"></span>متوسط</span>
+        <span class="chk"><span class="cb" data-c="stage:ثانوي"></span>ثانوي</span>
+        <span class="chk"><span class="cb" data-c="stage:جامعي"></span>جامعي</span>
+        <span class="chk"><span class="cb" data-c="stage:أخرى"></span>أخرى حدد</span>
+        <span class="v" data-k="stageOther" style="min-width:60px"></span>
+      </div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell" style="gap:8px">
+        <span class="l">نوع الهوية :</span>
+        <span class="chk"><span class="cb" data-c="idType:الهوية الوطنية"></span>الهوية الوطنية</span>
+        <span class="chk"><span class="cb" data-c="idType:إقامة"></span>إقامة</span>
+        <span class="chk"><span class="cb" data-c="idType:جواز سفر"></span>جواز سفر</span>
+        <span class="chk"><span class="cb" data-c="idType:رقم الحدود"></span>رقم الحدود</span>
+        <span class="chk"><span class="cb" data-c="idType:أخرى"></span>أخرى حدد</span>
+        <span class="v" data-k="idOther" style="min-width:40px"></span>
+      </div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell" style="flex:1.5"><span class="l">رقم الهوية :</span><span class="v nl" data-k="idNo" style="font-family:Arial,sans-serif;font-size:21px;letter-spacing:1px"></span></div>
+      <div class="cell"><span class="l">تاريخها :</span><span class="v nl" data-k="idDate"></span></div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell"><span class="l">رقم الجوال :</span><span class="v nl" data-k="mob" style="font-family:Arial,sans-serif;font-size:21px;letter-spacing:1px"></span></div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell"><span class="l">رقم جوال ولي الأمر :</span><span class="v" data-k="guard" style="font-family:Arial,sans-serif"></span></div>
+      <div class="cell"><span class="l">هاتف آخر :</span><span class="v" data-k="tel2" style="font-family:Arial,sans-serif"></span></div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell"><span class="l">المسجد :</span><span class="v" data-k="mosque"></span></div>
+      <div class="cell"><span class="l">الحلقة :</span><span class="v" data-k="halaqa"></span></div>
+    </div>
+
+    <div class="row r52">
+      <div class="cell"><span class="l">اسم المعلم :</span><span class="v" data-k="teacher"></span></div>
+      <div class="cell"><span class="l">مكتب الإشراف :</span><span class="v" data-k="office"></span></div>
+    </div>
+
+    <div class="sh-pledge" style="border-top:1.5px solid #333">
+      <div class="pt">تعهد ( أكتب (نعم) على العبارة التي تنطبق عليك )</div>
+      <div class="pn">أتعهد أنا الطالب / <span data-k="full"></span></div>
+      <div class="po"><span class="cb" data-c="pledge:no"></span>لم يسبق لي دخول اختبار كامل القرآن في أو خارج جمعية خيركم لتعليم القرآن الكريم وتحفيظه.</div>
+      <div class="po"><span class="cb" data-c="pledge:yes"></span>سبق لي دخول اختبار كامل القرآن في أو خارج جمعية خيركم لتعليم القرآن الكريم وتحفيظه.</div>
+    </div>
+
+    <div class="sh-sign">
+      <div class="sg">
+        <div><span class="l">توقيع الطالب :</span> <span class="v nl" data-k="full" style="display:inline-block;font-size:21px;min-width:0"></span></div>
+        <div class="sig-area"><img id="shSig" alt=""></div>
+      </div>
+      <div class="sd"><span class="l" style="font-size:19px">التاريخ :</span><span class="v" data-k="date"></span></div>
+    </div>
+  </div>
+
+  <div class="sh-foot">
+    <div>المملكة العربية السعودية - ص.ب ١٠٠ جدة ٢١٤١١ - هاتف ٦٥٢٣٣٣٣ فاكس ٦٥٢٤٤٤٤ - القسم النسائي : هاتف ٦٥٠٤١٣٣ فاكس ٦٥٠٤١٦٨</div>
+    <div>khayrocom &nbsp;|&nbsp; info@qj.org.sa &nbsp;|&nbsp; www.qj.org.sa</div>
+  </div>
+</div></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const form = $('f');
+  const state = { photo:null, sig:null, ids:[], blob:null, name:'' };
+  const PHOTO_RATIO = 170/166;          // matches the photo slot on the sheet
+
+  /* ---------- helpers ---------- */
+  const pad = n => String(n).padStart(2,'0');
+  function loadImage(file){
+    return new Promise((res,rej)=>{
+      const url = URL.createObjectURL(file);
+      const im = new Image();
+      im.onload = ()=>{ URL.revokeObjectURL(url); res(im); };
+      im.onerror = ()=>{ URL.revokeObjectURL(url); rej(new Error('تعذّر قراءة الصورة')); };
+      im.src = url;
+    });
+  }
+  function coverCrop(im, ratio, outW){
+    // center-crop (slightly biased to the top, where faces usually are) to the exact ratio
+    const sw = im.naturalWidth, sh = im.naturalHeight;
+    let cw = sw, ch = sw/ratio;
+    if (ch > sh){ ch = sh; cw = sh*ratio; }
+    const cx = (sw-cw)/2, cy = (sh-ch)*0.35;
+    const c = document.createElement('canvas');
+    c.width = outW; c.height = Math.round(outW/ratio);
+    const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height);
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(im, cx, cy, cw, ch, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', .92);
+  }
+  function downscale(im, maxSide){
+    const k = Math.min(1, maxSide/Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(im.naturalWidth*k); c.height = Math.round(im.naturalHeight*k);
+    const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0,0,c.width,c.height);
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(im,0,0,c.width,c.height);
+    return { data:c.toDataURL('image/jpeg', .88), w:c.width, h:c.height };
+  }
+
+  /* ---------- photo ---------- */
+  $('photoIn').addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const im = await loadImage(f);
+      state.photo = coverCrop(im, PHOTO_RATIO, 600);
+      $('photoThumb').innerHTML = '<img alt="" src="'+state.photo+'">';
+    }catch(err){ showErr(err.message); }
+  });
+
+  /* ---------- ID images ---------- */
+  function renderIds(){
+    const box = $('idThumbs');
+    box.innerHTML = state.ids.length
+      ? state.ids.map(i=>'<div class="thumb"><img alt="" src="'+i.data+'"></div>').join('')
+      : '<div class="thumb">لا توجد صورة</div>';
+    $('idClear').style.display = state.ids.length ? 'inline-block' : 'none';
+  }
+  $('idIn').addEventListener('change', async e=>{
+    const files = [...e.target.files];
+    try{
+      for(const f of files){
+        if(state.ids.length >= 2) break;
+        const im = await loadImage(f);
+        state.ids.push(downscale(im, 1800));
+      }
+      renderIds();
+    }catch(err){ showErr(err.message); }
+    e.target.value = '';
+  });
+  $('idClear').addEventListener('click', ()=>{ state.ids = []; renderIds(); });
+
+  /* ---------- signature pad ---------- */
+  const cv = $('sig'), cx = cv.getContext('2d');
+  let drawing = false, last = null, bbox = null, dpr = 1;
+  function sizeCanvas(){
+    const keep = state.sig ? cv.toDataURL() : null;
+    dpr = window.devicePixelRatio || 1;
+    const r = cv.getBoundingClientRect();
+    cv.width = Math.round(r.width*dpr); cv.height = Math.round(r.height*dpr);
+    cx.lineWidth = 2.6*dpr; cx.lineCap = 'round'; cx.lineJoin = 'round'; cx.strokeStyle = '#10205a';
+    if(keep){ const im = new Image(); im.onload = ()=>cx.drawImage(im,0,0,cv.width,cv.height); im.src = keep; }
+  }
+  function pos(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX-r.left)*dpr, y:(e.clientY-r.top)*dpr }; }
+  function grow(p){
+    if(!bbox) bbox = {x1:p.x,y1:p.y,x2:p.x,y2:p.y};
+    bbox.x1=Math.min(bbox.x1,p.x); bbox.y1=Math.min(bbox.y1,p.y);
+    bbox.x2=Math.max(bbox.x2,p.x); bbox.y2=Math.max(bbox.y2,p.y);
+  }
+  cv.addEventListener('pointerdown', e=>{
+    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    drawing = true; last = pos(e); grow(last);
+    cx.beginPath(); cx.arc(last.x,last.y,cx.lineWidth/2,0,6.283); cx.fillStyle='#10205a'; cx.fill();
+    state.sig = true; $('sigPh').style.display = 'none';
+  });
+  cv.addEventListener('pointermove', e=>{
+    if(!drawing) return; e.preventDefault();
+    const p = pos(e); grow(p);
+    cx.beginPath(); cx.moveTo(last.x,last.y); cx.lineTo(p.x,p.y); cx.stroke(); last = p;
+  });
+  ['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t, ()=>{ drawing=false; }));
+  $('sigClear').addEventListener('click', ()=>{
+    cx.clearRect(0,0,cv.width,cv.height); state.sig = null; bbox = null; $('sigPh').style.display = 'flex';
+  });
+  function sigDataUrl(){
+    if(!state.sig || !bbox) return null;
+    const m = 8*dpr;
+    const x = Math.max(0,bbox.x1-m), y = Math.max(0,bbox.y1-m);
+    const w = Math.min(cv.width-x, bbox.x2-bbox.x1+2*m), h = Math.min(cv.height-y, bbox.y2-bbox.y1+2*m);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(cv,x,y,w,h,0,0,w,h);
+    return c.toDataURL('image/png');
+  }
+  sizeCanvas();
+  let rz; window.addEventListener('resize', ()=>{ clearTimeout(rz); rz = setTimeout(()=>{ if(!drawing) sizeCanvas(); },200); });
+
+  /* ---------- small UI behaviours ---------- */
+  const today = new Date();
+  $('date').value = pad(today.getDate())+'/'+pad(today.getMonth()+1)+'/'+today.getFullYear();
+  $('dobG').addEventListener('change', ()=>{
+    const v = $('dobG').value; if(!v){ $('age').value=''; return; }
+    const d = new Date(v), n = new Date();
+    let a = n.getFullYear()-d.getFullYear();
+    if(n.getMonth()<d.getMonth() || (n.getMonth()===d.getMonth() && n.getDate()<d.getDate())) a--;
+    $('age').value = a>=0 ? a : '';
+  });
+  form.addEventListener('change', ()=>{
+    $('stageOtherW').style.display = form.stage.value==='أخرى' ? 'block' : 'none';
+    $('idOtherW').style.display = form.idType.value==='أخرى' ? 'block' : 'none';
+  });
+
+  function showErr(m){ $('err').textContent = m || ''; if(m) $('err').scrollIntoView({block:'center',behavior:'smooth'}); }
+
+  /* ---------- fill the A4 sheet ---------- */
+  function fmtDate(v){ if(!v) return ''; const [y,m,d] = v.split('-'); return d+'/'+m+'/'+y; }
+  function fillSheet(){
+    const fd = new FormData(form);
+    const val = k => (fd.get(k)||'').toString().trim();
+    const full = [val('n1'),val('n2'),val('n3'),val('n4')].filter(Boolean).join(' ');
+    const data = {
+      acc:val('acc'), n1:val('n1'), n2:val('n2'), n3:val('n3'), n4:val('n4'), nat:val('nat'), pob:val('pob'),
+      dobH:val('dobH'), dobG:fmtDate(val('dobG')), age:$('age').value,
+      stageOther: val('stage')==='أخرى' ? val('stageOther') : '',
+      idOther: val('idType')==='أخرى' ? val('idOther') : '',
+      idNo:val('idNo'), idDate:val('idDate'), mob:val('mob'), guard:val('guard'), tel2:val('tel2'),
+      mosque:val('mosque'), halaqa:val('halaqa'), teacher:val('teacher'), office:val('office'),
+      date:val('date'), full:full
+    };
+    document.querySelectorAll('#sheet [data-k]').forEach(el=>{ el.textContent = data[el.dataset.k] || ''; });
+    document.querySelectorAll('#sheet [data-c]').forEach(el=>{
+      const [k,v] = el.dataset.c.split(':');
+      el.textContent = (fd.get(k)===v) ? '( ✓ )' : '(   )';
+    });
+    $('shPhoto').src = state.photo || '';
+    $('shPhoto').style.visibility = state.photo ? 'visible' : 'hidden';
+    const sg = sigDataUrl();
+    $('shSig').src = sg || ''; $('shSig').style.visibility = sg ? 'visible' : 'hidden';
+    state.name = (val('n1')+'_'+val('n4')).replace(/\s+/g,'_').replace(/^_|_$/g,'') || 'طالب';
+  }
+
+  /* ---------- logo (optional logo.png next to index.html) ---------- */
+  const logo = $('logoImg');
+  function logoOk(){ $('shLogo').classList.remove('nologo'); }
+  function logoBad(){ $('shLogo').classList.add('nologo'); logo.style.display = 'none'; }
+  logo.addEventListener('load', ()=>{ if(logo.naturalWidth) logoOk(); else logoBad(); });
+  logo.addEventListener('error', logoBad);
+  if(logo.complete){ logo.naturalWidth ? logoOk() : logoBad(); }
+
+  /* ---------- build the PDF ---------- */
+  async function capture(){
+    await (document.fonts && document.fonts.ready);
+    try{ await Promise.all([document.fonts.load('700 20px Amiri'), document.fonts.load('400 20px Amiri'), document.fonts.load('400 14px Cairo')]); }catch(e){}
+    const shot = () => html2canvas($('sheet'), { scale:2.5, backgroundColor:'#ffffff', useCORS:true, width:794, height:1123, windowWidth:794, scrollX:0, scrollY:0 });
+    let canvas;
+    try{ canvas = await shot(); canvas.toDataURL('image/jpeg',.5); }
+    catch(e){ logoBad(); canvas = await shot(); }   // e.g. logo blocked when opened as a local file
+    return canvas.toDataURL('image/jpeg', .92);
+  }
+  function fitInto(w,h,bw,bh){ const k = Math.min(bw/w, bh/h); return { w:w*k, h:h*k }; }
+
+  async function build(){
+    const { jsPDF } = window.jspdf;
+    const page1 = await capture();
+    const pdf = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait', compress:true });
+    pdf.addImage(page1, 'JPEG', 0, 0, 210, 297);
+    pdf.addPage();
+    const n = state.ids.length, gap = 10, areaW = 180, areaH = 267;
+    const cellH = (areaH-gap*(n-1))/n;
+    state.ids.forEach((im,i)=>{
+      const s = fitInto(im.w, im.h, areaW, cellH);
+      const x = 15 + (areaW-s.w)/2;
+      const y = 15 + i*(cellH+gap) + (cellH-s.h)/2;
+      pdf.addImage(im.data, 'JPEG', x, y, s.w, s.h);
+    });
+    return { blob: pdf.output('blob'), preview: page1 };
+  }
+
+  function validate(){
+    const fd = new FormData(form), v = k => (fd.get(k)||'').toString().trim();
+    if(!state.photo) return 'أضف الصورة الشخصية.';
+    if(!v('n1')||!v('n2')||!v('n3')||!v('n4')) return 'اكتب الاسم كاملًا (الأول، الأب، الجد، اللقب).';
+    if(!v('idNo')) return 'اكتب رقم الهوية.';
+    if(!v('mob')) return 'اكتب رقم الجوال.';
+    if(!state.ids.length) return 'ارفع صورة الهوية.';
+    if(!state.sig) return 'وقّع في خانة التوقيع.';
+    return '';
+  }
+
+  $('save').addEventListener('click', async ()=>{
+    const m = validate(); showErr(m); if(m) return;
+    const btn = $('save'); btn.disabled = true; btn.textContent = 'جارٍ إنشاء الملف…';
+    try{
+      fillSheet();
+      const out = await build();
+      state.blob = out.blob;
+      $('prev').src = out.preview;
+      $('result').style.display = 'block';
+      $('share').style.display = (navigator.canShare && navigator.canShare({files:[new File([out.blob],'x.pdf',{type:'application/pdf'})]})) ? 'inline-block' : 'none';
+      download();
+      $('result').scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(err){
+      console.error(err);
+      showErr('حدث خطأ أثناء إنشاء الملف. تأكد من الاتصال بالإنترنت وأعد المحاولة.');
+    }finally{
+      btn.disabled = false; btn.textContent = 'حفظ وإنشاء PDF';
+    }
+  });
+  function fileName(){ return 'تعهد_اختبار_القرآن_'+state.name+'.pdf'; }
+  function download(){
+    if(!state.blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(state.blob); a.download = fileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }
+  $('dl').addEventListener('click', download);
+  $('share').addEventListener('click', async ()=>{
+    try{ await navigator.share({ files:[new File([state.blob], fileName(), {type:'application/pdf'})], title:'تعهد متقدم لاختبار كامل القرآن' }); }
+    catch(e){ /* cancelled */ }
+  });
+})();
+</script>
+</body>
+</html>
